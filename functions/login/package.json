@@ -1,0 +1,13 @@
+{
+  "name": "login",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "googleapis": "^40.0.0",
+    "micro": "^9.3.4",
+    "micro-redirect": "^1.0.0",
+    "mongodb": "^3.2.4",
+    "uuid": "^3.3.2"
+  }
+}
