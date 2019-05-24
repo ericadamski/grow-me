@@ -10,10 +10,33 @@ module.exports = async (req, res) => {
     useNewUrlParser: true,
   });
 
-  const data = await client
+  const data = (await client
     .db("grow-me")
     .collection("events")
-    .findOne({ _id: id }, { projection: { _id: 0, description: 1, name: 1 } });
+    .aggregate([
+      {
+        $match: { reference: +id },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          "user._id": 0,
+          _id: 0,
+          feedback: 0,
+        },
+      },
+    ])
+    .toArray())[0];
+
+  console.log(data);
 
   await client.close();
 

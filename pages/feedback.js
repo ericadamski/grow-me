@@ -44,7 +44,10 @@ function Feedback(props) {
     <Wrapper>
       <Container>
         <Header>
-          <Title>{props.firstName} wants your feedback!</Title>
+          <Title>
+            {props.event.user.firstName || "Someone"} wants your feedback on{" "}
+            {props.event.name}!
+          </Title>
         </Header>
         {feedbackSent ? (
           <Label>Thank you for your feedback!</Label>
@@ -52,14 +55,15 @@ function Feedback(props) {
           <Form onSubmit={handleSubmit}>
             <Form.Item>
               <Field>
-                <Label>{title(`Give ${props.firstName} A Rating`)}</Label>
+                <Label>
+                  {title(`Give ${props.event.user.firstName} A Rating`)}
+                </Label>
                 {getFieldDecorator("rating", {
                   rules: [
                     {
                       required: true,
-                      message: `Let's help ${
-                        props.firstName
-                      } improve by giving them some feedback.`,
+                      message: `Let's help ${props.event.user.firstName ||
+                        "someone"} improve by giving them some feedback.`,
                     },
                   ],
                 })(<Rate allowHalf />)}
@@ -67,13 +71,7 @@ function Feedback(props) {
             </Form.Item>
             <Form.Item>
               <Field>
-                <Label>
-                  {title(
-                    `Give ${
-                      props.firstName
-                    } some feedback, positive or negative, so that they can grow`,
-                  )}
-                </Label>
+                <Label>{props.event.description}</Label>
                 {getFieldDecorator("comment")(
                   <Input.TextArea
                     rows={4}
@@ -93,13 +91,13 @@ function Feedback(props) {
 }
 
 Feedback.getInitialProps = async ({ query }) => {
-  const { firstName } = await fetch(`${process.env.BASE_URL}/api/user/name`, {
+  const event = await fetch(`${process.env.BASE_URL}/api/event/details`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ id: query.id }),
   }).then(response => response.json());
 
-  return { firstName, id: query.id };
+  return { event, id: query.id };
 };
 
 export default Form.create({ name: "feedback" })(Feedback);

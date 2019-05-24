@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
   await client
     .db("grow-me")
     .collection("events")
-    .updateOne({ _id: id }, { $push: { feedback } });
+    .updateOne({ reference: +id }, { $push: { feedback } });
 
   await client.close();
 
