@@ -1,25 +1,62 @@
 // #region imports
 const { json } = require("micro");
 const { MongoClient: Mongo } = require("mongodb");
+const { google } = require("googleapis");
 const fetch = require("isomorphic-unfetch");
 // #endregion imports
 
-module.exports = async (req, res) => {
-  const { token } = await json(req);
+const { OAuth2 } = google.auth;
+const plus = google.plus("v1");
 
-  const response = await fetch(
-    `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`,
-  );
-  const { user_id } = await response.json();
+const options = {
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+};
+
+const authClient = new OAuth2(options);
+
+module.exports = async (req, res) => {
+  const { access, refresh } = await json(req);
+
+  if (!(access && refresh)) {
+    return res.end();
+  }
+
+  authClient.setCredentials({ access_token: access, refresh_token: refresh });
+
+  const { data: user } = await new Promise((resolve, reject) => {
+    plus.people.get({ userId: "me", auth: authClient }, (err, response) => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve(response);
+    });
+  });
 
   const client = await Mongo.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
   });
 
-  const data = await client
+  const data = (await client
     .db("grow-me")
     .collection("users")
-    .findOne({ _id: user_id });
+    .aggregate([
+      {
+        $match: {
+          _id: user.id,
+        },
+      },
+      {
+        $lookup: {
+          from: "events",
+          localField: "_id",
+          foreignField: "user",
+          as: "feedback",
+        },
+      },
+    ])
+    .toArray())[0];
 
   await client.close();
 

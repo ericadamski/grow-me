@@ -23,10 +23,9 @@ function Feedback(props) {
 
     props.form.validateFields((err, values) => {
       if (!err) {
-        console.log("Received values of form: ", values);
         values.time = Date.now();
 
-        fetch(`${process.env.BASE_URL}/api/user/feedback`, {
+        fetch(`${process.env.BASE_URL}/api/event/feedback`, {
           method: "POST",
           headers: {
             "content-type": "application/json",

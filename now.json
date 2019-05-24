@@ -8,8 +8,8 @@
   ],
   "routes": [
     { "src": "/f/(?<id>[^/]+)", "dest": "/feedback?id=$id" },
-    { "src": "/api/(.*)", "dest": "/functions/$1" },
-    { "src": "/auth/google/callback", "dest": "/functions/login" }
+    { "src": "/api/auth/google/callback", "dest": "/functions/login" },
+    { "src": "/api/(.*)", "dest": "/functions/$1" }
   ],
   "env": {
     "MONGO_URL": "@grow-me-mongo-url",

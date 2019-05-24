@@ -1,11 +1,9 @@
 {
-  "name": "user",
+  "name": "event",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "googleapis": "^40.0.0",
-    "isomorphic-unfetch": "^3.0.0",
     "micro": "^9.3.4",
     "mongodb": "^3.2.4"
   }

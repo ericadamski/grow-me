@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import fetch from "isomorphic-unfetch";
 import { withRouter } from "next/router";
 import Link from "next/link";
+import Cookies from "universal-cookie";
 import {
   Wrapper,
   Header,
@@ -14,22 +15,29 @@ import {
 import Ratings from "../lib/components/ratings";
 
 export default class Home extends Component {
-  static async getInitialProps({ query }) {
-    const response = await fetch(`${process.env.BASE_URL}/api/user`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ token: query.t }),
-    });
+  state = { data: null };
 
-    const data = await response.json();
+  componentDidMount() {
+    const cookies = new Cookies();
 
-    return { data };
+    if (cookies.get("at") && cookies.get("rt")) {
+      fetch(`${process.env.BASE_URL}/api/user`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          access: cookies.get("at"),
+          refresh: cookies.get("rt"),
+        }),
+      })
+        .then(r => r.json())
+        .then(data => this.setState({ data }));
+    }
   }
 
   render() {
-    const { data } = this.props;
+    const { data } = this.state;
 
     return (
       <Wrapper>

@@ -8,7 +8,6 @@ const redirect = require("micro-redirect");
 const { MongoClient: Mongo } = require("mongodb");
 // #endregion imports
 
-const provider = "google";
 const { OAuth2 } = google.auth;
 const plus = google.plus("v1");
 
@@ -72,7 +71,7 @@ module.exports = async (req, res) => {
     return redirect(res, 302, redirectURL);
   }
 
-  if (pathname === "/auth/google/callback") {
+  if (pathname === "/api/auth/google/callback") {
     const { state, code } = querystring.parse(query);
 
     if (states.includes(state)) {
@@ -82,7 +81,7 @@ module.exports = async (req, res) => {
 
       if (!tokens.error) {
         const user = await getUser(client);
-        const { access_token } = tokens;
+        const { access_token, refresh_token } = tokens;
         const {
           data: { id, emails, name, image },
         } = user;
@@ -108,7 +107,12 @@ module.exports = async (req, res) => {
 
         await mongoClient.close();
 
-        return redirect(res, 302, `/?t=${access_token}`);
+        return res.end(
+          JSON.stringify({
+            access_token,
+            refresh_token,
+          }),
+        );
       }
     }
   }
