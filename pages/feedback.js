@@ -10,7 +10,7 @@ import {
   Container,
   Label,
   Field,
-} from "./styled/feedback.styled";
+} from "../lib/components/styled/feedback.styled";
 
 function Feedback(props) {
   const { getFieldDecorator } = props.form;

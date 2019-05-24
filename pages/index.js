@@ -11,7 +11,7 @@ import {
   AvatarGroup,
   Name,
   Avatar,
-} from "./styled/home.styled";
+} from "../lib/components/styled/home.styled";
 import Ratings from "../lib/components/ratings";
 
 export default class Home extends Component {
