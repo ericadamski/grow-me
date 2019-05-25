@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "now dev"
+    "dev": "now dev",
+    "now-build": "next build"
   },
   "dependencies": {
     "@zeit/next-css": "^1.0.1",
