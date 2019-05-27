@@ -4,7 +4,7 @@
   "alias": "grow-me",
   "builds": [
     { "src": "next.config.js", "use": "@now/next" },
-    { "src": "functions/**/*", "use": "@now/node" }
+    { "src": "functions/**/*.js", "use": "@now/node" }
   ],
   "routes": [
     { "src": "/f/(?<id>[^/]+)", "dest": "/feedback?id=$id" },
