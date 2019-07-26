@@ -1,6 +1,5 @@
 // #region imports
-const url = require("url");
-const { send } = require("micro");
+const { json } = require("micro");
 const querystring = require("querystring");
 const { google } = require("googleapis");
 const uuid = require("uuid");
@@ -10,16 +9,6 @@ const { MongoClient: Mongo } = require("mongodb");
 
 const { OAuth2 } = google.auth;
 const plus = google.plus("v1");
-
-const options = {
-  clientId: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackUrl:
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000/auth/google/callback"
-      : "https://grow-me.now.sh/auth/google/callback",
-  scopes: ["profile", "email"],
-};
 
 function getToken(client, code) {
   return new Promise((resolve, reject) => {
@@ -35,87 +24,27 @@ function getToken(client, code) {
   });
 }
 
-function getUser(client) {
-  return new Promise((resolve, reject) => {
-    plus.people.get({ userId: "me", auth: client }, (err, response) => {
-      if (err) {
-        return reject(err);
-      }
-
-      resolve(response);
-    });
-  });
-}
-
-const states = [];
 const client = new OAuth2(
-  options.clientId,
-  options.clientSecret,
-  options.callbackUrl,
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI,
 );
-const scope = ["https://www.googleapis.com/auth/userinfo.email"];
 
 module.exports = async (req, res) => {
-  const { pathname, query } = url.parse(req.url);
+  const { code } = await json(req);
 
-  if (pathname === "/api/login") {
-    const state = uuid.v4();
-    states.push(state);
+  const tokens = await getToken(client, code);
 
-    const redirectURL = client.generateAuthUrl({
-      access_type: "offline",
-      scope,
-      state,
-    });
+  if (!tokens.error) {
+    const { access_token, refresh_token } = tokens;
 
-    return redirect(res, 302, redirectURL);
+    return res.end(
+      JSON.stringify({
+        access_token,
+        refresh_token,
+      }),
+    );
   }
 
-  if (pathname === "/api/auth/google/callback") {
-    const { state, code } = querystring.parse(query);
-
-    if (states.includes(state)) {
-      states.splice(states.indexOf(state), 1);
-
-      const tokens = await getToken(client, code);
-
-      if (!tokens.error) {
-        const user = await getUser(client);
-        const { access_token, refresh_token } = tokens;
-        const {
-          data: { id, emails, name, image },
-        } = user;
-
-        const email = emails[0].value;
-
-        const mongoClient = await Mongo.connect(process.env.MONGO_URL, {
-          useNewUrlParser: true,
-        });
-
-        const users = mongoClient.db("grow-me").collection("users");
-
-        if (!(await users.findOne({ email }))) {
-          await users.insertOne({
-            _id: id,
-            firstName: name.givenName,
-            lastName: name.familyName,
-            name,
-            email,
-            picture: image.url,
-          });
-        }
-
-        await mongoClient.close();
-
-        return res.end(
-          JSON.stringify({
-            access_token,
-            refresh_token,
-          }),
-        );
-      }
-    }
-  }
-
-  res.end();
+  throw new Error("Invalid Code");
 };

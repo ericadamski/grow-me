@@ -2,7 +2,6 @@
 const { json } = require("micro");
 const { MongoClient: Mongo } = require("mongodb");
 const { google } = require("googleapis");
-const fetch = require("isomorphic-unfetch");
 // #endregion imports
 
 const { OAuth2 } = google.auth;
