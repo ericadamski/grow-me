@@ -9,11 +9,11 @@ const GlobalStyles = createGlobalStyle`
     font-family: 'Roboto', sans-serif;
 
     *::selection {
-      background: ${Colors.green}; /* WebKit/Blink Browsers */
+      background: #6032f2; /* WebKit/Blink Browsers */
     }
 
     *::-moz-selection {
-      background: ${Colors.green}; /* Gecko Browsers */
+      background: #6032f2; /* Gecko Browsers */
     }
 
     *, *::before, *::after {
@@ -43,12 +43,12 @@ export default class GrowApp extends App {
         <GlobalStyles />
         <NextSeo
           config={{
-            title: "💗Grow Me",
+            title: "Grow Me",
             description:
               "A small application that helps you get anonymous feedback to become a better person.",
             openGraph: {
               url: "https://grow-me.level.codes",
-              title: "💗Grow Me",
+              title: "Grow Me",
               description:
                 "A small application that helps you get anonymous feedback to become a better person.",
               images: [

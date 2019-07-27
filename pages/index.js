@@ -1,9 +1,10 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import Router from "next/router";
-import Link from 'next/link';
+import Link from "next/link";
 import fetch from "isomorphic-unfetch";
 import nextCookie from "next-cookies";
-import { withAuthSync } from "../lib/services/auth";
+import { Rate, Icon } from "antd";
+import { withAuthSync, logout } from "../lib/services/auth";
 import {
   Wrapper,
   LogoWrapper,
@@ -12,24 +13,38 @@ import {
   WrittenContentWrapper,
   Anchor,
   TryMe,
-  Header,
   Button,
-  AvatarWrapper,
-  AvatarGroup,
-  Name,
-  Avatar,
+  ContentHeader,
+  Content,
+  EventContainer,
+  EventList,
+  Details,
+  Detail,
+  P,
+  Event,
+  Focus,
+  Outer,
+  CreateWrapper,
+  CreateOverlay,
+  CreateDialog,
 } from "../lib/components/styled/home.styled";
-import Ratings from "../lib/components/ratings";
-import Modal from "../lib/components/modal";
+import { CreateEvent } from "../lib/components/ratings";
 import LevelLogo from "../lib/components/level-logo";
+import { FeedbackLink } from "../lib/components/ratings/ratings.styled";
 
 class Home extends Component {
+  state = { focusing: false, focusedEvent: null, create: false };
+
   static async getInitialProps(ctx) {
     const { token } = nextCookie(ctx);
 
+    if (!token) {
+      return { data: {} };
+    }
+
     const redirectOnError = () =>
       !ctx.res
-        ? Router.push("/")
+        ? Router.push("/login")
         : ctx.res.writeHead(302, { Location: "/login" }).end();
 
     try {
@@ -54,8 +69,152 @@ class Home extends Component {
 
   render() {
     if (Object.keys(this.props.data).length > 1) {
+      const overallRating =
+        this.props.data.feedback.length > 0
+          ? this.props.data.feedback.reduce((s, { feedback }) => {
+              if (feedback.length < 1) {
+                return s;
+              }
+
+              return (
+                s +
+                feedback.reduce((s, { rating }) => s + rating, 0) /
+                  feedback.length
+              );
+            }, 0) / this.props.data.feedback.length
+          : this.props.data.feedback.length;
+
       return (
-        <Wrapper>I am logged in {JSON.stringify(this.props.data)}</Wrapper>
+        <Outer>
+          <Button
+            style={{
+              position: "fixed",
+              top: "1rem",
+              left: "1rem",
+              zIndex: 200000,
+            }}
+            onClick={logout}
+          >
+            Logout
+          </Button>
+          <Wrapper white>
+            {this.state.create && (
+              <CreateWrapper>
+                <CreateOverlay
+                  onClick={() => this.setState({ create: false })}
+                />
+                <CreateDialog>
+                  <ContentHeader
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 20,
+                    }}
+                  >
+                    <Icon
+                      type="close-circle"
+                      style={{ fontSize: "1.5rem", marginRight: 20 }}
+                      onClick={() => this.setState({ create: false })}
+                    />
+                    <Title style={{ margin: 0 }}>Create a New Event</Title>
+                  </ContentHeader>
+                  <CreateEvent
+                    user={this.props.data._id}
+                    onClick={() => this.setState({ create: false })}
+                  />
+                </CreateDialog>
+              </CreateWrapper>
+            )}
+            <Content>
+              <ContentHeader>
+                <a href="https://level.codes/">
+                  <LevelLogo color="#6032f2" />
+                </a>
+                <Title>Hello, {this.props.data.givenName}.</Title>
+              </ContentHeader>
+              <EventContainer>
+                <Details focusing={this.state.focusing}>
+                  <Detail>
+                    <Title>✨Average</Title>
+                    <Rate disabled allowHalf defaultValue={overallRating} />
+                  </Detail>
+                  <Detail>
+                    <Title>🔗Share</Title>
+                    <P>Create an event and share it!</P>
+                    <Button onClick={() => this.setState({ create: true })}>
+                      Create
+                    </Button>
+                  </Detail>
+                </Details>
+                <Title>🎪Events</Title>
+                <EventList>
+                  {this.props.data.feedback.map(f => (
+                    <Event
+                      key={f._id}
+                      onClick={event => {
+                        event.stopPropagation();
+
+                        this.setState({ focusing: true, focusedEvent: f }, () =>
+                          document
+                            .getElementById("focus")
+                            .scrollIntoView({ behavior: "smooth" }),
+                        );
+                      }}
+                    >
+                      <span style={{ flexGrow: 1 }}>{f.name}</span>
+                      <Icon type="right" />
+                    </Event>
+                  ))}
+                </EventList>
+              </EventContainer>
+            </Content>
+          </Wrapper>
+          <Focus focused={this.state.focusing}>
+            {this.state.focusing && (
+              <Icon
+                type="close-circle"
+                style={{ fontSize: "2rem", position: "fixed", right: "2rem" }}
+                onClick={() =>
+                  this.setState({ focusing: false }, () =>
+                    document
+                      .getElementById("main")
+                      .scrollIntoView({ behavior: "smooth", inline: "start" }),
+                  )
+                }
+              />
+            )}
+            {this.state.focusedEvent && (
+              <Content>
+                <ContentHeader>
+                  <Title>{this.state.focusedEvent.name}</Title>
+                </ContentHeader>
+                <EventContainer>
+                  <Title>👂Feedback</Title>
+                  <FeedbackLink style={{ marginTop: 20 }} copyable>
+                    {this.state.focusedEvent.link}
+                  </FeedbackLink>
+                  <EventList>
+                    {this.state.focusedEvent.feedback.map((f, i) => (
+                      <Event
+                        key={i}
+                        style={{
+                          flexDirection: "column",
+                          alignItems: "flex-start",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <span style={{ flexGrow: 1, marginBottom: 10 }}>
+                          {new Date(f.time).toLocaleString()}
+                        </span>
+                        {f.comment}
+                      </Event>
+                    ))}
+                  </EventList>
+                </EventContainer>
+              </Content>
+            )}
+          </Focus>
+        </Outer>
       );
     }
 

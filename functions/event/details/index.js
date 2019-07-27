@@ -36,8 +36,6 @@ module.exports = async (req, res) => {
     ])
     .toArray())[0];
 
-  console.log(data);
-
   await client.close();
 
   res.end(JSON.stringify(data));
