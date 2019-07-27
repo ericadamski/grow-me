@@ -1,4 +1,5 @@
 import React from "react";
+import {NextSeo} from "next-seo";
 import App, { Container } from "next/app";
 import { createGlobalStyle } from "styled-components";
 import Colors from "../utils/colors";
@@ -40,6 +41,38 @@ export default class GrowApp extends App {
     return (
       <Container>
         <GlobalStyles />
+        <NextSeo
+          config={{
+            title: "💗Grow Me",
+            description:
+              "A small application that helps you get anonymous feedback to become a better person.",
+            openGraph: {
+              url: "https://grow-me.level.codes",
+              title: "💗Grow Me",
+              description:
+                "A small application that helps you get anonymous feedback to become a better person.",
+              images: [
+                {
+                  url: "https://grow-me.now.sh/static/favicon.jpg",
+                  width: 640,
+                  height: 640,
+                  alt: "beating heart emoticon",
+                },
+              ],
+            },
+            twitter: {
+              handle: "@levelcodes",
+              site: "@levelcodes",
+              cardType: "summary_large_image",
+              image: {
+                url: "https://grow-me.now.sh/static/favicon.jpg",
+                width: 640,
+                height: 640,
+                alt: "beating heart emoticon",
+              },
+            },
+          }}
+        />
         <Component {...pageProps} />
       </Container>
     );
