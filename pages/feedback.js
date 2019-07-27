@@ -21,6 +21,8 @@ function Feedback(props) {
     event.preventDefault();
     event.stopPropagation();
 
+    setFeedbackSent(true);
+
     props.form.validateFields((err, values) => {
       if (!err) {
         values.time = Date.now();
@@ -32,7 +34,6 @@ function Feedback(props) {
           },
           body: JSON.stringify({ id: props.id, feedback: values }),
         }).then(() => {
-          setFeedbackSent(true);
 
           setTimeout(() => Router.replace("/"), 3000);
         });
@@ -45,7 +46,7 @@ function Feedback(props) {
       <Container>
         <Header>
           <Title>
-            {props.event.user.firstName || "Someone"} wants your feedback on{" "}
+            {props.event.user.givenName || "Someone"} wants your feedback on{" "}
             {props.event.name}!
           </Title>
         </Header>
@@ -56,13 +57,13 @@ function Feedback(props) {
             <Form.Item>
               <Field>
                 <Label>
-                  {title(`Give ${props.event.user.firstName} A Rating`)}
+                  {title(`Give ${props.event.user.givenName || "Someone"} A Rating`)}
                 </Label>
                 {getFieldDecorator("rating", {
                   rules: [
                     {
                       required: true,
-                      message: `Let's help ${props.event.user.firstName ||
+                      message: `Let's help ${props.event.user.givenName ||
                         "someone"} improve by giving them some feedback.`,
                     },
                   ],
