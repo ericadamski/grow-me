@@ -10,6 +10,11 @@
     { "src": "/f/(?<id>[^/]+)", "dest": "/feedback?id=$id" },
     { "src": "/api/(.*)", "dest": "/functions/$1" }
   ],
+  "build": {
+    "env": {
+      "GOOGLE_CLIENT_ID": "@grow-me-google-client-id"
+    }
+  },
   "env": {
     "MONGO_URL": "@grow-me-mongo-url",
     "GOOGLE_CLIENT_ID": "@grow-me-google-client-id",
