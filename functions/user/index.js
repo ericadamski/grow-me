@@ -15,15 +15,15 @@ const options = {
 const authClient = new OAuth2(options);
 
 module.exports = async (req, res) => {
-  const { access, refresh } = await json(req);
+  const { access_token, refresh_token } = JSON.parse(req.headers.authorization);
 
-  if (!(access && refresh)) {
-    return res.end();
+  if (!(access_token && refresh_token)) {
+    throw new Error("Invalid request.");
   }
 
-  authClient.setCredentials({ access_token: access, refresh_token: refresh });
+  authClient.setCredentials({ access_token, refresh_token });
 
-  const { data: user } = await new Promise((resolve, reject) => {
+  const { data } = await new Promise((resolve, reject) => {
     plus.people.get({ userId: "me", auth: authClient }, (err, response) => {
       if (err) {
         return reject(err);
@@ -33,17 +33,26 @@ module.exports = async (req, res) => {
     });
   });
 
+  const user = {
+    _id: data.id,
+    email: data.emails.find(({ type }) => type === "account").value,
+    displayName: data.displayName,
+    name: data.name,
+    ...data.name,
+    picture: data.image.url,
+  };
+
   const client = await Mongo.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
   });
 
-  const data = (await client
+  const userData = (await client
     .db("grow-me")
     .collection("users")
     .aggregate([
       {
         $match: {
-          _id: user.id,
+          _id: user._id,
         },
       },
       {
@@ -57,7 +66,17 @@ module.exports = async (req, res) => {
     ])
     .toArray())[0];
 
+  /**
+   * The user doesn't have an account yet
+   */
+  if (!userData) {
+    await client
+      .db("grow-me")
+      .collection("users")
+      .insertOne(user);
+  }
+
   await client.close();
 
-  res.end(JSON.stringify(data));
+  res.end(JSON.stringify(userData || { ...user, feedback: [] }));
 };

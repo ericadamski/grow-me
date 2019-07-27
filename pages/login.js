@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import fetch from "isomorphic-unfetch";
-import { Wrapper, Button } from "../lib/components/styled/login.styled";
+import {
+  Wrapper,
+  Button,
+  ButtonInner,
+  LogoWrapper,
+} from "../lib/components/styled/login.styled";
 import { login } from "../lib/services/auth";
-import Google from '../lib/components/google'
+import Google from "../lib/components/google";
+import LevelLogo from "../lib/components/level-logo";
 
-function Login(props) {
+export default function Login() {
   const [auth, setAuth] = useState();
 
   useEffect(() => {
@@ -15,7 +21,7 @@ function Login(props) {
       gapi.load("auth2", () => {
         setAuth(
           gapi.auth2.init({
-            client_id: props.CLIENT_ID,
+            client_id: process.env.CLIENT_ID,
             scope: "profile",
           }),
         );
@@ -38,26 +44,26 @@ function Login(props) {
                 },
                 body: JSON.stringify(body),
               }).then(async response => {
-                  if (response.status === 200) {
-                    const tokens = await response.json();
+                  console.log(response);
+                if (response.ok) {
+                  const token = await response.json();
 
-                    await login({ token });
-                  }
-
+                  await login({ token });
+                }
                 //   TODO: we need to handle the errors nicely here
               }),
             );
           }}
         >
-          <Google />Login with Google
+          <ButtonInner>
+            <Google />
+            Login/Sign Up with Google
+          </ButtonInner>
         </Button>
       )}
+        <LogoWrapper href="https://level.codes/">
+          <LevelLogo />
+        </LogoWrapper>
     </Wrapper>
   );
 }
-
-Login.getInitialProps = () => {
-  return { CLIENT_ID: process.env.GOOGLE_CLIENT_ID };
-};
-
-export default Login;
