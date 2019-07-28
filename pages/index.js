@@ -4,6 +4,7 @@ import Link from "next/link";
 import fetch from "isomorphic-unfetch";
 import nextCookie from "next-cookies";
 import { Rate, Icon } from "antd";
+import host from "../lib/services/host";
 import { withAuthSync, logout } from "../lib/services/auth";
 import {
   Wrapper,
@@ -47,8 +48,14 @@ class Home extends Component {
         ? Router.push("/login")
         : ctx.res.writeHead(302, { Location: "/login" }).end();
 
+    const baseUri = !ctx.res
+      ? host()
+      : `${ctx.req.headers["x-forwarded-proto"]}://${
+          ctx.req.headers["x-forwarded-host"]
+        }`;
+
     try {
-      const response = await fetch(`${process.env.BASE_URL}/api/user`, {
+      const response = await fetch(`${baseUri}/api/user`, {
         credentials: "include",
         headers: {
           Authorization: token,
@@ -63,6 +70,7 @@ class Home extends Component {
         return await redirectOnError();
       }
     } catch (error) {
+      console.log(error);
       return redirectOnError();
     }
   }

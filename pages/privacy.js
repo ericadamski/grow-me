@@ -1,13 +1,9 @@
 import React from "react";
-import NextSeo from "next-seo";
+import { NextSeo } from "next-seo";
 
 export default () => (
   <main style={{ padding: "3rem" }}>
-    <NextSeo
-      config={{
-        noindex: true,
-      }}
-    />
+    <NextSeo noindex />
     <h1>Privacy Policy</h1>
     <p>
       This privacy notice discloses the privacy practices for{" "}

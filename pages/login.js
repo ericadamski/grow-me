@@ -7,6 +7,7 @@ import {
   LogoWrapper,
 } from "../lib/components/styled/login.styled";
 import { login } from "../lib/services/auth";
+import host from '../lib/services/host';
 import Google from "../lib/components/google";
 import LevelLogo from "../lib/components/level-logo";
 
@@ -37,14 +38,14 @@ export default function Login() {
         <Button
           onClick={() => {
             auth.grantOfflineAccess().then(body =>
-              fetch(`${process.env.BASE_URL}/api/login`, {
+              fetch(`${host()}/api/login`, {
                 method: "POST",
                 headers: {
                   "content-type": "application/json",
                 },
                 body: JSON.stringify(body),
               }).then(async response => {
-                  console.log(response);
+                console.log(response);
                 if (response.ok) {
                   const token = await response.json();
 

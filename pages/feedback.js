@@ -11,6 +11,7 @@ import {
   Label,
   Field,
 } from "../lib/components/styled/feedback.styled";
+import host from "../lib/services/host";
 
 function Feedback(props) {
   const { getFieldDecorator } = props.form;
@@ -27,14 +28,16 @@ function Feedback(props) {
       if (!err) {
         values.time = Date.now();
 
-        fetch(`${process.env.BASE_URL}/api/event/feedback`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
+        fetch(
+          `${host()}/api/event/feedback`,
+          {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify({ id: props.id, feedback: values }),
           },
-          body: JSON.stringify({ id: props.id, feedback: values }),
-        }).then(() => {
-
+        ).then(() => {
           setTimeout(() => Router.replace("/"), 3000);
         });
       }
@@ -92,11 +95,14 @@ function Feedback(props) {
 }
 
 Feedback.getInitialProps = async ({ query }) => {
-  const event = await fetch(`${process.env.BASE_URL}/api/event/details`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ id: query.id }),
-  }).then(response => response.json());
+  const event = await fetch(
+    `${host()}/api/event/details`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id: query.id }),
+    },
+  ).then(response => response.json());
 
   return { event, id: query.id };
 };
