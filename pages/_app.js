@@ -50,7 +50,7 @@ export default class GrowApp extends App {
               "A small application that helps you get anonymous feedback to become a better person.",
             images: [
               {
-                url: "https://grow-me.now.sh/static/favicon.jpg",
+                url: "https://grow-me.now.sh/static/favicon.png",
                 width: 640,
                 height: 640,
                 alt: "beating heart emoticon",
@@ -62,7 +62,7 @@ export default class GrowApp extends App {
             site: "@levelcodes",
             cardType: "summary_large_image",
             image: {
-              url: "https://grow-me.now.sh/static/favicon.jpg",
+              url: "https://grow-me.now.sh/static/favicon.png",
               width: 640,
               height: 640,
               alt: "beating heart emoticon",

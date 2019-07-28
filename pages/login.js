@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import fetch from "isomorphic-unfetch";
+import { Icon } from "antd";
+import "antd/dist/antd.css";
 import {
   Wrapper,
   Button,
@@ -7,12 +9,13 @@ import {
   LogoWrapper,
 } from "../lib/components/styled/login.styled";
 import { login } from "../lib/services/auth";
-import host from '../lib/services/host';
+import host from "../lib/services/host";
 import Google from "../lib/components/google";
 import LevelLogo from "../lib/components/level-logo";
 
 export default function Login() {
   const [auth, setAuth] = useState();
+  const [authing, setAuthing] = useState(false);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -34,9 +37,11 @@ export default function Login() {
 
   return (
     <Wrapper>
-      {auth && (
+      {auth && !authing ? (
         <Button
           onClick={() => {
+            setAuthing(true);
+
             auth.grantOfflineAccess().then(body =>
               fetch(`${host()}/api/login`, {
                 method: "POST",
@@ -61,10 +66,12 @@ export default function Login() {
             Login/Sign Up with Google
           </ButtonInner>
         </Button>
+      ) : (
+        <Icon spin type="loading" style={{ fontSize: "16px", color: "#FFF" }} />
       )}
-        <LogoWrapper href="https://level.codes/">
-          <LevelLogo />
-        </LogoWrapper>
+      <LogoWrapper href="https://level.codes/">
+        <LevelLogo />
+      </LogoWrapper>
     </Wrapper>
   );
 }

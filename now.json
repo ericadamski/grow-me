@@ -18,8 +18,6 @@
   "env": {
     "MONGO_URL": "@grow-me-mongo-url",
     "GOOGLE_CLIENT_ID": "@grow-me-google-client-id",
-    "GOOGLE_CLIENT_SECRET": "@grow-me-google-client-secret",
-    "GOOGLE_REDIRECT_URI": "https://grow-me.now.sh",
-    "BASE_URL": "https://grow-me.now.sh"
+    "GOOGLE_CLIENT_SECRET": "@grow-me-google-client-secret"
   }
 }

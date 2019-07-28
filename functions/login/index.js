@@ -24,13 +24,13 @@ function getToken(client, code) {
   });
 }
 
-const client = new OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI,
-);
-
 module.exports = async (req, res) => {
+  const client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    `${req.headers["x-forwarded-proto"]}://${req.headers["x-forwarded-host"]}`,
+  );
+
   const { code } = await json(req);
 
   const tokens = await getToken(client, code);
