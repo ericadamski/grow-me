@@ -1,4 +1,5 @@
 import React from "react";
+import Head from "next/head";
 import { NextSeo } from "next-seo";
 import App, { Container } from "next/app";
 import { createGlobalStyle } from "styled-components";
@@ -39,6 +40,10 @@ export default class GrowApp extends App {
 
     return (
       <Container>
+        <Head>
+          <link rel="manifest" href="/static/manifest.json" />
+          <meta name="theme-color" content="#6032f2" />
+        </Head>
         <GlobalStyles />
         <NextSeo
           title="Grow Me"
