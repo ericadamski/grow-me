@@ -94,9 +94,11 @@ function Feedback(props) {
   );
 }
 
-Feedback.getInitialProps = async ({ query }) => {
+Feedback.getInitialProps = async ({ query, req }) => {
+  const host = req ? `${req.headers['x-forwarded-proto']}://${req.headers['x-forwarded-host']}` : host();
+
   const event = await fetch(
-    `${host()}/api/event/details`,
+    `${host}/api/event/details`,
     {
       method: "POST",
       headers: { "content-type": "application/json" },
