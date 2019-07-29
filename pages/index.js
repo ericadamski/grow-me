@@ -94,17 +94,17 @@ class Home extends Component {
 
       return (
         <Outer>
-          <Button
+          <Icon
+            type="logout"
             style={{
               position: "fixed",
               top: "1rem",
               left: "1rem",
+              fontSize: "1.25rem",
               zIndex: 200000,
             }}
             onClick={logout}
-          >
-            Logout
-          </Button>
+          />
           <Wrapper white>
             {this.state.create && (
               <CreateWrapper>
@@ -124,11 +124,13 @@ class Home extends Component {
                       style={{ fontSize: "1.5rem", marginRight: 20 }}
                       onClick={() => this.setState({ create: false })}
                     />
-                    <Title style={{ margin: 0 }}>Create a New Event</Title>
+                    <Title style={{ margin: 0 }}>Request Feedback</Title>
                   </ContentHeader>
                   <CreateEvent
                     user={this.props.data._id}
-                    onClick={() => this.setState({ create: false })}
+                    onClick={() =>
+                      this.setState({ create: false }, () => Router.replace('/'))
+                    }
                   />
                 </CreateDialog>
               </CreateWrapper>
@@ -148,7 +150,9 @@ class Home extends Component {
                   </Detail>
                   <Detail>
                     <Title>🔗Share</Title>
-                    <P>Create an event and share it!</P>
+                    <P>
+                      Create an event and share it to start getting feedback!
+                    </P>
                     <Button onClick={() => this.setState({ create: true })}>
                       Create
                     </Button>
@@ -178,23 +182,30 @@ class Home extends Component {
             </Content>
           </Wrapper>
           <Focus focused={this.state.focusing}>
-            {this.state.focusing && (
-              <Icon
-                type="close-circle"
-                style={{ fontSize: "2rem", position: "fixed", right: "2rem" }}
-                onClick={() =>
-                  this.setState({ focusing: false }, () =>
-                    document
-                      .getElementById("main")
-                      .scrollIntoView({ behavior: "smooth", inline: "start" }),
-                  )
-                }
-              />
-            )}
             {this.state.focusedEvent && (
               <Content>
                 <ContentHeader>
-                  <Title>{this.state.focusedEvent.name}</Title>
+                  <Title>
+                    <Icon
+                      type="arrow-left"
+                      style={{
+                        fontSize: "1rem",
+                        marginRight: "1rem",
+                        border: "1px solid black",
+                        padding: "0.5rem",
+                        borderRadius: "50%",
+                      }}
+                      onClick={() =>
+                        this.setState({ focusing: false }, () =>
+                          document.getElementById("main").scrollIntoView({
+                            behavior: "smooth",
+                            inline: "start",
+                          }),
+                        )
+                      }
+                    />
+                    {this.state.focusedEvent.name}
+                  </Title>
                 </ContentHeader>
                 <EventContainer>
                   <Title>👂Feedback</Title>
@@ -202,21 +213,37 @@ class Home extends Component {
                     {this.state.focusedEvent.link}
                   </FeedbackLink>
                   <EventList>
-                    {this.state.focusedEvent.feedback.map((f, i) => (
-                      <Event
-                        key={i}
+                    {this.state.focusedEvent.feedback.length > 0 ? (
+                      this.state.focusedEvent.feedback.map((f, i) => (
+                        <Event
+                          key={i}
+                          style={{
+                            flexDirection: "column",
+                            alignItems: "flex-start",
+                            pointerEvents: "none",
+                          }}
+                        >
+                          <span style={{ flexGrow: 1, marginBottom: 10 }}>
+                            {new Date(f.time).toLocaleString()}
+                          </span>
+                          {f.comment}
+                        </Event>
+                      ))
+                    ) : (
+                      <Title
                         style={{
+                          display: "flex",
                           flexDirection: "column",
-                          alignItems: "flex-start",
-                          pointerEvents: "none",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "2rem",
+                          textAlign: "center",
                         }}
                       >
-                        <span style={{ flexGrow: 1, marginBottom: 10 }}>
-                          {new Date(f.time).toLocaleString()}
-                        </span>
-                        {f.comment}
-                      </Event>
-                    ))}
+                        <Icon type="arrow-up" />
+                        Share this Link to Get Some Feedback
+                      </Title>
+                    )}
                   </EventList>
                 </EventContainer>
               </Content>
