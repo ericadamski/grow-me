@@ -19,7 +19,7 @@ module.exports = withOffline(
             networkTimeoutSeconds: 15,
             expiration: {
               maxEntries: 150,
-              maxAgeSeconds: 30 * 24 * 60 * 60, // 1 month
+              maxAgeSeconds: 24 * 60 * 60, // 1 day
             },
             cacheableResponse: {
               statuses: [0, 200],
