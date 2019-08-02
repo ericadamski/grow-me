@@ -4,7 +4,7 @@ const { MongoClient: Mongo } = require("mongodb");
 // #endregion imports
 
 module.exports = async (req, res) => {
-  const { description, name, userId, reference, link } = await json(req);
+  const { description, name, userId, reference, link, title } = await json(req);
 
   const client = await Mongo.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
@@ -20,6 +20,7 @@ module.exports = async (req, res) => {
       feedback: [],
       reference,
       link,
+      title,
     });
 
   await client.close();

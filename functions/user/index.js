@@ -15,68 +15,74 @@ const options = {
 const authClient = new OAuth2(options);
 
 module.exports = async (req, res) => {
-  const { access_token, refresh_token } = JSON.parse(req.headers.authorization);
+  try {
+    const { access_token, refresh_token } = JSON.parse(
+      req.headers.authorization,
+    );
 
-  if (!(access_token && refresh_token)) {
-    throw new Error("Invalid request.");
-  }
+    if (!(access_token && refresh_token)) {
+      throw new Error("Invalid request.");
+    }
 
-  authClient.setCredentials({ access_token, refresh_token });
+    authClient.setCredentials({ access_token, refresh_token });
 
-  const { data } = await new Promise((resolve, reject) => {
-    plus.people.get({ userId: "me", auth: authClient }, (err, response) => {
-      if (err) {
-        return reject(err);
-      }
+    const { data } = await new Promise((resolve, reject) => {
+      plus.people.get({ userId: "me", auth: authClient }, (err, response) => {
+        if (err) {
+          return reject(err);
+        }
 
-      resolve(response);
+        resolve(response);
+      });
     });
-  });
 
-  const user = {
-    _id: data.id,
-    email: data.emails.find(({ type }) => type === "account").value,
-    displayName: data.displayName,
-    name: data.name,
-    ...data.name,
-    picture: data.image.url,
-  };
+    const user = {
+      _id: data.id,
+      email: data.emails.find(({ type }) => type === "account").value,
+      displayName: data.displayName,
+      name: data.name,
+      ...data.name,
+      picture: data.image.url,
+    };
 
-  const client = await Mongo.connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-  });
+    const client = await Mongo.connect(process.env.MONGO_URL, {
+      useNewUrlParser: true,
+    });
 
-  const userData = (await client
-    .db("grow-me")
-    .collection("users")
-    .aggregate([
-      {
-        $match: {
-          _id: user._id,
-        },
-      },
-      {
-        $lookup: {
-          from: "events",
-          localField: "_id",
-          foreignField: "user",
-          as: "feedback",
-        },
-      },
-    ])
-    .toArray())[0];
-
-  /**
-   * The user doesn't have an account yet
-   */
-  if (!userData) {
-    await client
+    const userData = (await client
       .db("grow-me")
       .collection("users")
-      .insertOne(user);
+      .aggregate([
+        {
+          $match: {
+            _id: user._id,
+          },
+        },
+        {
+          $lookup: {
+            from: "events",
+            localField: "_id",
+            foreignField: "user",
+            as: "feedback",
+          },
+        },
+      ])
+      .toArray())[0];
+
+    /**
+     * The user doesn't have an account yet
+     */
+    if (!userData) {
+      await client
+        .db("grow-me")
+        .collection("users")
+        .insertOne(user);
+    }
+
+    await client.close();
+
+    res.end(JSON.stringify(userData || { ...user, feedback: [] }));
+  } catch (error) {
+    res.end(JSON.stringify({ error }));
   }
-
-  await client.close();
-
-  res.end(JSON.stringify(userData || { ...user, feedback: [] }));
 };

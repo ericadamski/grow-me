@@ -129,7 +129,9 @@ class Home extends Component {
                   <CreateEvent
                     user={this.props.data._id}
                     onClick={() =>
-                      this.setState({ create: false }, () => Router.replace('/'))
+                      this.setState({ create: false }, () =>
+                        Router.replace("/"),
+                      )
                     }
                   />
                 </CreateDialog>
@@ -173,7 +175,7 @@ class Home extends Component {
                         );
                       }}
                     >
-                      <span style={{ flexGrow: 1 }}>{f.name}</span>
+                      <span style={{ flexGrow: 1 }}>{f.title || f.name}</span>
                       <Icon type="right" />
                     </Event>
                   ))}
