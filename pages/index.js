@@ -28,6 +28,12 @@ import {
   CreateWrapper,
   CreateOverlay,
   CreateDialog,
+  Features,
+  Feature,
+  FeatureImage,
+  FeatureDescription,
+  FeatureTitle,
+  FeatureDetails,
 } from "../lib/components/styled/home.styled";
 import { CreateEvent } from "../lib/components/ratings";
 import LevelLogo from "../lib/components/level-logo";
@@ -268,11 +274,51 @@ class Home extends Component {
             become a better person.
           </Explanation>
           <Link href="/login">
-            <TryMe>Sign Up Free</TryMe>
+            <TryMe>Login / Sign up free</TryMe>
           </Link>
         </WrittenContentWrapper>
+        <Features>
+          <Feature>
+            <FeatureImage>
+              <img src="/static/feature-1.png" />
+            </FeatureImage>
+            <FeatureDetails>
+              <FeatureTitle>See where you're at</FeatureTitle>
+              <FeatureDescription>
+                At a quick glance see your average response, create a new event
+                to receive feedback on, or dive into some old feedback to see if
+                you have improved.
+              </FeatureDescription>
+            </FeatureDetails>
+          </Feature>
+          <Feature>
+            <FeatureImage>
+              <img src="/static/feature-2.png" />
+            </FeatureImage>
+            <FeatureDetails>
+              <FeatureTitle>Simple way to share</FeatureTitle>
+              <FeatureDescription>
+                Just pass around your unique event link and people can start
+                giving you the feedback you need to be better.
+              </FeatureDescription>
+            </FeatureDetails>
+          </Feature>
+          <Feature>
+            <FeatureImage>
+              <img src="/static/feature-3.png" />
+            </FeatureImage>
+            <FeatureDetails>
+              <FeatureTitle>Review anonymous feedback</FeatureTitle>
+              <FeatureDescription>
+                All feedback submitted is anonymous, so you can focus on the
+                content and people can feel more free to give you useful
+                details.
+              </FeatureDescription>
+            </FeatureDetails>
+          </Feature>
+        </Features>
         <LogoWrapper href="https://level.codes">
-          <LevelLogo />
+          <LevelLogo color="#6032f2" />
         </LogoWrapper>
       </Wrapper>
     );
